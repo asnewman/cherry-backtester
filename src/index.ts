@@ -1,6 +1,7 @@
 import AlphaVantage from 'alphavantage-ts';
+import { avDayDataToDayData, DayData } from './helpers';
 
-type DailyData = {
+export type AVDayData = {
   '1. open': string;
   '2. high': string;
   '3. low': string;
@@ -10,7 +11,7 @@ type DailyData = {
 
 class CherryBacktester {
   ticker: string;
-  dailyData: { [key: string]: any } | undefined;
+  dailyData: DayData[] | undefined;
   ledger: {
     date: string;
     action: 'buy' | 'sell';
@@ -33,31 +34,34 @@ class CherryBacktester {
       datatype: 'json',
     });
 
-    this.dailyData = rawDailyData['Time Series (Daily)'];
+    const dailyData: DayData[] = []
+    for (const [date, avData] of Object.entries(rawDailyData["Time Series (Daily)"]).reverse()) {
+      dailyData.push(avDayDataToDayData(date, avData as AVDayData))
+    }
+
+    this.dailyData = dailyData;
   }
 
   calculateDaily(
     evaluator: (
-      data: [string, DailyData][]
+      data: DayData[]
     ) => { action: 'buy' | 'sell' | 'nothing'; amount: number }
   ) {
     if (!this.dailyData) {
       throw new Error('Data has not been initialized');
     }
 
-    const reversedDailyDataEntries = Object.entries(this.dailyData).reverse();
-
     let idx = 0;
-    for (const [date, dayData] of reversedDailyDataEntries) {
+    for (const dayData of this.dailyData) {
       const { action, amount } = evaluator(
-        reversedDailyDataEntries.slice(0, idx + 1)
+        this.dailyData.slice(0, idx + 1)
       );
 
       idx++;
 
       if (action === 'nothing') continue;
       else {
-        const transactionAmount = dayData['4. close'] * amount;
+        const transactionAmount = dayData.close * amount;
         let success = true;
 
         if (action === 'buy') {
@@ -76,7 +80,7 @@ class CherryBacktester {
           }
         }
 
-        this.ledger.push({ date, action, amount, success });
+        this.ledger.push({ date: dayData.date, action, amount, success });
       }
     }
   }

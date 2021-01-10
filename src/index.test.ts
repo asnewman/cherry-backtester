@@ -1,42 +1,48 @@
 import CherryBacktester from '.';
+import { DayData } from './helpers';
 
-const exampleRawData = {
-  '2020-12-31': {
-    '1. open': '124.2200',
-    '2. high': '126.0300',
-    '3. low': '123.9900',
-    '4. close': '125.8800',
-    '5. volume': '3574696',
+const exampleRawData: DayData[] = [
+  {
+    date: '2020-12-24',
+    open: 125,
+    high: 125.1,
+    low: 124.21,
+    close: 124.69,
+    volume: 1761122,
   },
-  '2020-12-30': {
-    '1. open': '123.8000',
-    '2. high': '124.8500',
-    '3. low': '123.6300',
-    '4. close': '124.3400',
-    '5. volume': '3380494',
+  {
+    date: "2020-12-28",
+    open: 125.1,
+    high: 126.6,
+    low: 124.46,
+    close: 124.82,
+    volume: 3583222,
   },
-  '2020-12-29': {
-    '1. open': '125.3500',
-    '2. high': '125.4800',
-    '3. low': '123.2400',
-    '4. close': '123.8000',
-    '5. volume': '3487007',
+  {
+    date: "2020-12-29",
+    open: 125.35,
+    high: 125.48,
+    low: 123.24,
+    close: 123.8,
+    volume: 3487007,
   },
-  '2020-12-28': {
-    '1. open': '125.1000',
-    '2. high': '126.6000',
-    '3. low': '124.4600',
-    '4. close': '124.8200',
-    '5. volume': '3583222',
+  {
+    date: "2020-12-30",
+    open: 123.8,
+    high: 124.85,
+    low: 123.63,
+    close: 124.34,
+    volume: 3380494,
   },
-  '2020-12-24': {
-    '1. open': '125.0000',
-    '2. high': '125.1000',
-    '3. low': '124.2100',
-    '4. close': '124.6900',
-    '5. volume': '1761122',
+  {
+    date: "2020-12-31",
+    open: 124.22,
+    high: 126.03,
+    low: 123.99,
+    close: 125.88,
+    volume: 3574696,
   },
-};
+]
 
 describe('Cherry Backtester tests', () => {
   test('Buy works correctly', () => {
@@ -44,7 +50,7 @@ describe('Cherry Backtester tests', () => {
     cb.dailyData = exampleRawData;
 
     cb.calculateDaily(data => {
-      if (data[data.length - 1][1]['4. close'] === '123.8000') {
+      if (data[data.length - 1].close === 123.8) {
         return {
           action: 'buy',
           amount: 2,
@@ -72,8 +78,8 @@ describe('Cherry Backtester tests', () => {
 
     cb.calculateDaily(data => {
       if (
-        data[data.length - 1][1]['4. close'] === '125.8800' ||
-        data[data.length - 1][1]['4. close'] === '123.8000'
+        data[data.length - 1].close === 125.88 ||
+        data[data.length - 1].close === 123.8
       ) {
         return {
           action: 'buy',
@@ -81,7 +87,7 @@ describe('Cherry Backtester tests', () => {
         };
       }
 
-      if (data[data.length - 1][1]['4. close'] === '124.3400') {
+      if (data[data.length - 1].close === 124.34) {
         return {
           action: 'sell',
           amount: 1,
@@ -116,7 +122,7 @@ describe('Cherry Backtester tests', () => {
     cb.dailyData = exampleRawData;
 
     cb.calculateDaily(data => {
-      if (data[data.length - 1][1]['4. close'] === '123.8000') {
+      if (data[data.length - 1].close === 123.8) {
         return {
           action: 'buy',
           amount: 99999,
@@ -143,7 +149,7 @@ describe('Cherry Backtester tests', () => {
     cb.dailyData = exampleRawData;
 
     cb.calculateDaily(data => {
-      if (data[data.length - 1][1]['4. close'] === '123.8000') {
+      if (data[data.length - 1].close === 123.8) {
         return {
           action: 'sell',
           amount: 99999,
